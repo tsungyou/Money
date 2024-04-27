@@ -47,7 +47,6 @@ class Syncer(object):
             return None 
 
 if __name__ == "__main__":
-    
     sync = Syncer()
-    sync.make_dir
+    sync.make_dir()
     sync.update_all()
