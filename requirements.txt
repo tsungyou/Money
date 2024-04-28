@@ -4,3 +4,7 @@ pandas
 matplotlib
 flask
 fuzzywuzzy
+tqdm
+argparse
+BeautifulSoup4
+requests
