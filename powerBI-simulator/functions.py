@@ -1,8 +1,8 @@
 import json
-def get_stocks_from_json(file_path='list_of_stocks.json'):
+def get_stocks_from_json(file_path='list_of_stocks.json', keys='stocks'):
     with open(file_path, 'r') as file:
         data = json.load(file)
-    stocks_data = data.get("stocks", [])
+    stocks_data = data.get(keys, [])
     return stocks_data
 def read_json(file_path):
     with open(file_path, 'r') as file:

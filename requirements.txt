@@ -8,3 +8,4 @@ tqdm
 argparse
 BeautifulSoup4
 requests
+lxml
