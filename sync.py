@@ -22,7 +22,7 @@ class Syncer(object):
                 mongo_db = self.mongo[db]
                 for collection in mongo_db.list_collection_names():
                     if test:
-                        data = mongo_db[collection].find({}, {"_id":0}).limit(1000)
+                        data = mongo_db[collection].find({}, {"_id":0}).limit(100000)
                     else:
                         data = mongo_db[collection].find({})
 
@@ -48,5 +48,5 @@ class Syncer(object):
 
 if __name__ == "__main__":
     sync = Syncer()
-    sync.make_dir()
+    # sync.make_dir()
     sync.update_all()
