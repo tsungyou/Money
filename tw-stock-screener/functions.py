@@ -14,7 +14,9 @@ def strat1_bt(ticker='1513.TW', start='2023-01-01', end='2024-04-30'):
 def data_strat1(ticker, start, end):
     price_ma1 = 20
     price_ma2 = 60
-    df = yf.download(ticker, start=start, end=end, interval='1d', progress=0)
+    ticker = ticker.replace(".", "_")
+    df = pd.read_parquet(f"{ticker}.parquet")
+    df = df[(df.index >= start) & (df.index <= end)]
     df['day_count'] = np.arange(0, len(df))
 
     """Columns
@@ -131,12 +133,19 @@ def nav_returns_backtest_only(df):
                 cur[i] = current_open
                 
                 k += 1
-    if k != 1:
-        close_position.append([i, df['Close'].iloc[i], k-1])
-    return_total = cur[len(df)-1]/cur[0] - 1
+    try:
+        return_total = cur[len(df)-1]/cur[0] - 1
+    except: 
+        return 0, 0, 0, 0, 0, 0
     avg_return = np.mean(returns_pertrade)
-    winrate = count_positive_numbers(returns_pertrade)/len(returns_pertrade)
-    return return_total, winrate, avg_return
+    try:
+        winrate = count_positive_numbers(returns_pertrade)/len(returns_pertrade)
+    except:
+        return 0, 0, 0, 0, 0, 0
+    last_openposition_date = open_position[-1][0]
+    last_openposition_price = open_position[-1][1]
+    trades = len(open_position)
+    return return_total, winrate, avg_return, trades, last_openposition_date, last_openposition_price
 
 def nav_returns_subplots(ax, df, data_output = True):
     start = 10000.0
@@ -200,7 +209,6 @@ def nav_returns_subplots(ax, df, data_output = True):
                 ax.axvline(i[0], color='b', label='Close', alpha=0.3)
             else:
                 ax.axvline(i[0], color='b')
-        ax.legend()
         
         print("returns: ", returns_pertrade)
         print("avg per trade: ", avg_return)
