@@ -1,0 +1,3 @@
+1. strat1 pure_volume 可使用；未選股回測
+2. strat2 PER, BMR, cash_yield => data from securities_trading_data.parquet
+3. strat3: 預計從strat1改
