@@ -23,7 +23,7 @@ def get_files_under_path(path):
 if __name__ == "__main__":
     path_parquet = os.path.join(DIR_PATH, "database")
     files = get_files_under_path(path_parquet)
-    for _, file in enumerate(files):
+    for _, file in enumerate(files[:-1]):
         tick = file.split("/")[-1].split(".")[0]
         ticker = tick.replace("_", ".")
         update_data =  yf.download(ticker, start=today, interval='1d', progress=False)
