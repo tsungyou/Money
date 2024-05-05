@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 '''
 def read_db_parquet(ticker, start='2023-01-01', end=datetime.now()):
     ticker = ticker.replace(".", "_")
-    df = pd.read_parquet(f"{ticker}.parquet")
+    df = pd.read_parquet(f"../database/{ticker}.parquet")
     df = df[(df.index >= start) & (df.index <= end)]
     df['day_count'] = np.arange(0, len(df))
     return df
@@ -41,7 +41,7 @@ def data_strat2(ticker, start='2023-01-01', end=datetime.now()):
 
     # 0.12 of close price, the threshold ==========================================
     df['Close_12per'] = df['Close']*0.12
-    df['max_min_20d_diff'] = df['max_price_past_20d'] - df['min_price_past_20d']
+    df['max_min_20d_diff'] = (df['max_price_past_20d'] - df['min_price_past_20d']).shift(3)
     df['max_min_price_less_than_12per'] = df['max_min_20d_diff'] < df['Close_12per']
 
     # volume surge ================================================================
@@ -289,8 +289,8 @@ def nav_returns_subplots(ax, df, data_output = True, holding_days=10):
                 cur[i] = current_open
                 
                 k += 1
-    if k != 1:
-        close_position.append([i, df['Close'].iloc[i].index, df[k-1].index])
+    # if k != 1:
+    #     close_position.append([i, df.index[i]])
 
     # data output calculation
 

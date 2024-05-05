@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 '''
 def read_db_parquet(ticker, start='2023-01-01', end=datetime.now()):
     ticker = ticker.replace(".", "_")
-    df = pd.read_parquet(f"{ticker}.parquet")
+    df = pd.read_parquet(f"../database/{ticker}.parquet")
     df = df[(df.index >= start) & (df.index <= end)]
     df['day_count'] = np.arange(0, len(df))
     return df
@@ -289,8 +289,8 @@ def nav_returns_subplots(ax, df, data_output = True, holding_days=10):
                 cur[i] = current_open
                 
                 k += 1
-    if k != 1:
-        close_position.append([i, df['Close'].iloc[i].index, df[k-1].index])
+    # if k != 1:
+    #     close_position.append([i, df.index[i], df[k-1].index])
 
     # data output calculation
 

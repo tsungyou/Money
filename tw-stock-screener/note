@@ -28,7 +28,12 @@ daily_filter 未完成
 daily_update 未完成
 '''
 
+策略3: PuPS_Thre20_Concept
+
+# tight_free_float_ratio
+策略4: PCorr_TFFR
+
 # =======================
-策略3: PER_BMR_dividend
+策略5: PER_BMR_dividend
     1. 目前 rank + rank + rank 失敗
 
