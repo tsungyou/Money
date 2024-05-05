@@ -1,1 +1,0 @@
-python3 tw-stock-screener/database/yearly/database_daily_update.py
