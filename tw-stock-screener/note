@@ -11,6 +11,12 @@
         trades, last_openposition_date, last_openposition_price = \
         nav_returns_backtest_only(df)
         合併後使用
+'''
+daily_filter 完成
+daily_update 未完成
+'''
+# VPS1_BB_MM12, volume and price surge, 
+#               box break and max_price - min_price > 0.12*Close_price
 策略2: price_break_box_volume_surge_MaxMinLimit
     1. df = data_strat2(ticker, start, end)
     2. return_total, winrate, avg_return, \
@@ -18,3 +24,11 @@
         nav_returns_backtest_only(df)
         合併後使用
 '''
+daily_filter 未完成
+daily_update 未完成
+'''
+
+# =======================
+策略3: PER_BMR_dividend
+    1. 目前 rank + rank + rank 失敗
+
