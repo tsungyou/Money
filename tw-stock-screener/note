@@ -1,3 +1,20 @@
 1. strat1 pure_volume 可使用；未選股回測
 2. strat2 PER, BMR, cash_yield => data from securities_trading_data.parquet
 3. strat3: 預計從strat1改
+
+
+用法:
+# VPS3_C15, volume & price surge then correction for 15/10 days
+策略1: volume_surge_price_surge_correction_ma20
+    1. df = data_strat1(ticker, start, end)
+    2. return_total, winrate, avg_return, \
+        trades, last_openposition_date, last_openposition_price = \
+        nav_returns_backtest_only(df)
+        合併後使用
+策略2: price_break_box_volume_surge_MaxMinLimit
+    1. df = data_strat2(ticker, start, end)
+    2. return_total, winrate, avg_return, \
+        trades, last_openposition_date, last_openposition_price = \
+        nav_returns_backtest_only(df)
+        合併後使用
+'''
