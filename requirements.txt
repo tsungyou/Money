@@ -9,3 +9,5 @@ argparse
 BeautifulSoup4
 requests
 lxml
+flask_wtf
+wtforms
