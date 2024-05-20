@@ -34,7 +34,7 @@ class App(ctk.CTk):
 
         self.portfolio_page = Cluster(self.tabview.tab("Cluster"))
         self.portfolio_page.pack(expand=True, fill='both')
-
+        
         self.settings_page = Screener(self.tabview.tab("Screener"))
         self.settings_page.pack(expand=True, fill='both')
 

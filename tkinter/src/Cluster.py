@@ -5,4 +5,6 @@ class Cluster(ctk.CTkFrame):
         label = ctk.CTkLabel(self, text="Welcome to the Portfolio Page")
         label.pack(pady=20)
 
-        
+        input1 = ctk.CTkEntry(self, placeholder_text='20')
+        input1.pack(pady=20)
+
