@@ -5,7 +5,7 @@ class Screener(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.tree = ttk.Treeview(self, columns=("Key", "Database", "Collection"), show="headings")
+        self.tree = ttk.Treeview(self, columns=("Date", "Open", "Close"), show="headings")
         self.tree.heading("Date", text="Date")
         self.tree.heading("Open", text="Open")
         self.tree.heading("Close", text="Close")
