@@ -116,5 +116,12 @@ class Clustering():
             json.dump(cluster_dict, f, indent=4)
         return None
 
+
+class Backtesting():
+    def __init__(self):
+        pass
+
 cluster = Clustering()
 cluster.cluster_to_json()
+
+

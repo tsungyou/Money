@@ -1,9 +1,0 @@
-get stock pool from tw_stock_list
-1. volume
-2. volume_ntd
-3. TW/TWO
-
-strat1: 
-=> get all stocks, maybe volume top 100 for test purpose
-=> backtest using .parquet file, get list of signal-useful stocks 
-=> latest date of signal

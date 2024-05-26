@@ -1,5 +1,3 @@
-pymongo
-pyarrow
 pandas
 matplotlib
 flask
@@ -9,5 +7,5 @@ argparse
 BeautifulSoup4
 requests
 lxml
-flask_wtf
-wtforms
+tradingview-ta
+customtkinter
