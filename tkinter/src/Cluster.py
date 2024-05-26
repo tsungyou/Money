@@ -103,7 +103,6 @@ class Cluster(ctk.CTkFrame):
         response = requests.get(url)
         if response.status_code != 200:
             print('Failed to retrieve data')
-            exit()
 
         # 使用BeautifulSoup解析HTML
         soup = BeautifulSoup(response.text, 'html.parser')
