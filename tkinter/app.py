@@ -3,7 +3,8 @@ from src.HomePage import HomePage
 from src.Screener import Screener
 from src.Strategy import Strategy
 from src.Cluster  import Cluster
-
+import matplotlib
+matplotlib.use("MacOSX")
 
 
 
@@ -11,7 +12,6 @@ from src.Cluster  import Cluster
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.title("Stock Manager")
         self.geometry("1920x1080")
 
@@ -37,7 +37,13 @@ class App(ctk.CTk):
         
         self.settings_page = Screener(self.tabview.tab("Screener"))
         self.settings_page.pack(expand=True, fill='both')
+        
+        self.protocol("WM_DELETE_WINDOW", self.on_exit)
 
+    def on_exit(self):
+        self.destroy()
+        self.quit()
+        
 if __name__ == "__main__":
     app = App()
     app.mainloop()
