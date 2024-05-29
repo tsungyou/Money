@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import ttk
+import json
 
 class Strategy(ctk.CTkFrame):
     def __init__(self, parent):
@@ -22,9 +23,12 @@ class Strategy(ctk.CTkFrame):
         style.configure("Treeview", rowheight=50, font=("Helvetica", 20))
 
         # Configure buttons
-        self.factor_dataframe = ttk.Treeview(self, columns=("Factor Name", "Return"), show="headings", style="Treeview")
+        self.factor_dataframe = ttk.Treeview(self, columns=("Factor Name", "Return", "Sharpe", "CAGR", "MDD"), show="headings", style="Treeview")
         self.factor_dataframe.heading("Factor Name", text="Factor Name")
         self.factor_dataframe.heading("Return", text="Return")
+        self.factor_dataframe.heading("Sharpe", text="Sharpe")
+        self.factor_dataframe.heading("CAGR", text="CAGR")
+        self.factor_dataframe.heading("MDD", text="MDD")
         self.factor_dataframe.bind("<ButtonRelease-1>", self.on_factor_click)
         self.factor_dataframe.grid(row=0, column=0, padx=2, pady=2, sticky='n')
         self.insert_factor_tree()
@@ -45,12 +49,22 @@ class Strategy(ctk.CTkFrame):
     def on_factor_click(self, event):
         item = self.factor_dataframe.identify('item', event.x, event.y)
         factor_name = self.factor_dataframe.item(item, "values")[0]
-        self.textbox.insert('end', factor_name + '\n')
+        # action 1
+        with open("src/factor_description.json", "r") as f:
+            data = json.load(f)
+        self.textbox.insert("end", f"======{factor_name}======\n")
+        self.textbox.insert('end', data[factor_name] + '\n')
+        # action 2
+        
+        df = pd.read_csv(f"src/{factor_name}.csv")
+        self.factor_selection_dataframe.delete(*self.factor_selection_dataframe.get_children())
+        for i in range(len(df)):
+            self.factor_selection_dataframe.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2]))
     def on_tree_click(self, event):
-        item = self.tree.identify('item', event.x, event.y)
-        symbol = self.tree.item(item, "values")[0]
+        item = self.factor_selection_dataframe.identify('item', event.x, event.y)
+        symbol = self.factor_selection_dataframe.item(item, "values")[0]
         self.symbol = symbol
-        self.plotting(self.symbol1.split(".")[0], column=0)
+        self.plotting(self.symbol.split(".")[0])
     def plotting(self, ticker):
         try:
             tw = self.pq_loc_dir + f"{ticker}_TW.parquet"
@@ -81,10 +95,8 @@ class Strategy(ctk.CTkFrame):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0)
     def insert_factor_tree(self):
-        df = pd.DataFrame()
-        df['A'] = [1, 2, 3]
-        df['B'] = [1, 2, 3]
-        df['C'] = [1, 2, 3]
+        df = pd.read_csv("src/factors_table.csv")
+        
         self.factor_dataframe.delete(*self.factor_dataframe.get_children())
         for i in range(len(df)):
-            self.factor_dataframe.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2]))
+            self.factor_dataframe.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2], df.iloc[i, 3], df.iloc[i, 4]))
