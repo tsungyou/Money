@@ -1,4 +1,5 @@
 {
     "FFT_1Y_LR_M": "用傅立葉變換(Fast Fourier Transform, FFT)為基礎, 對過去一年股價做傅立葉變換, 預測未來半年股價走勢, 對未來半年股價走勢的預測做線性回歸(Linear Regression, LR), 斜率越大權重越大, 預設月轉倉(M), shortable",
-    "ARIMA_1Y_PCT_M_AROPT": "用Time Series: AutoRegression-Moving Average model(ARIMA)x 過去一個月(1Y)個股報酬率變化(PCT)計算下一個月預期報酬率, 權重以預測下一個月預期報酬率大小為基準, 月轉倉(M), 同時rolling pacf調整每一期, 個別股票適用之autoregression期數(AutoRegression Optimization, AROPT)"
+    "ARIMA_1Y_PCT_M_AROPT": "用Time Series: AutoRegression-Moving Average model(ARIMA)x 過去一個月(1Y)個股報酬率變化(PCT)計算下一個月預期報酬率, 權重以預測下一個月預期報酬率大小為基準, 月轉倉(M), 同時rolling pacf調整每一期, 個別股票適用之autoregression期數(AutoRegression Optimization, AROPT)",
+    "MA20_strat1": "moving average 20, monthly"
 }
