@@ -21,22 +21,22 @@ class Strategy(ctk.CTkFrame):
         
         style.configure("Treeview.Heading", font=("Helvetica", 20))
         style.configure("Treeview", rowheight=50, font=("Helvetica", 20))
-
+    
         # Configure buttons
-        self.factor_dataframe = ttk.Treeview(self, columns=("Factor Name", "Return", "Sharpe", "CAGR", "MDD"), show="headings", style="Treeview")
-        self.factor_dataframe.heading("Factor Name", text="Factor Name")
-        self.factor_dataframe.heading("Return", text="Return")
+        self.factor_dataframe = ttk.Treeview(self, columns=("策略名稱", "總報酬", "Sharpe", "年化報酬", "最大回檔"), show="headings", style="Treeview")
+        self.factor_dataframe.heading("策略名稱", text="策略名稱")
+        self.factor_dataframe.heading("總報酬", text="總報酬")
         self.factor_dataframe.heading("Sharpe", text="Sharpe")
-        self.factor_dataframe.heading("CAGR", text="CAGR")
-        self.factor_dataframe.heading("MDD", text="MDD")
+        self.factor_dataframe.heading("年化報酬", text="年化報酬")
+        self.factor_dataframe.heading("最大回檔", text="最大回檔")
         self.factor_dataframe.bind("<ButtonRelease-1>", self.on_factor_click)
         self.factor_dataframe.grid(row=0, column=0, padx=2, pady=2, sticky='n')
         self.insert_factor_tree()
 
-        self.factor_selection_dataframe = ttk.Treeview(self, columns=("Ticker", "Date", "return-to-date"), show="headings", style="Treeview")
-        self.factor_selection_dataframe.heading("Ticker", text="Ticker")
-        self.factor_selection_dataframe.heading("Date", text="Date")
-        self.factor_selection_dataframe.heading("return-to-date", text="return-to-date")
+        self.factor_selection_dataframe = ttk.Treeview(self, columns=("股票代號", "選入日期", "自選入起報酬"), show="headings", style="Treeview")
+        self.factor_selection_dataframe.heading("股票代號", text="股票代號")
+        self.factor_selection_dataframe.heading("選入日期", text="選入日期")
+        self.factor_selection_dataframe.heading("自選入起報酬", text="自選入起報酬")
         self.factor_selection_dataframe.bind("<ButtonRelease-1>", self.on_tree_click)
         self.factor_selection_dataframe.grid(row=0, column=1, padx=2, pady=2, sticky='n')
 
@@ -44,7 +44,7 @@ class Strategy(ctk.CTkFrame):
 
         self.textbox = ctk.CTkTextbox(self, width=200, height=200, corner_radius=20)
         self.textbox.grid(row=1, column=1, padx=2, pady=2, sticky='nsew')
-
+        self.textbox.insert("end", f"=========================策略描述=========================\n")
     
     def on_factor_click(self, event):
         item = self.factor_dataframe.identify('item', event.x, event.y)
@@ -52,7 +52,9 @@ class Strategy(ctk.CTkFrame):
         # action 1
         with open("src/factor_description.json", "r") as f:
             data = json.load(f)
-        self.textbox.insert("end", f"======{factor_name}======\n")
+        self.textbox.delete("1.0", 'end')
+        self.textbox.insert("end", f"=========================策略描述=========================\n")
+        self.textbox.insert("end", f"========================={factor_name}=========================\n")
         self.textbox.insert('end', data[factor_name] + '\n')
         # action 2
         
