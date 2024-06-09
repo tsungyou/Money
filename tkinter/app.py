@@ -15,7 +15,6 @@ class App(ctk.CTk):
         self.tabview = ctk.CTkTabview(self)
         self.tabview.pack(expand=True, fill='both')
 
-
         # Add tabs
         self.tabview.add("代號搜尋")
         self.tabview.add("單日漲跌幅")
