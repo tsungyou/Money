@@ -34,10 +34,10 @@ class Strategy(ctk.CTkFrame):
         self.factor_dataframe.grid(row=0, column=0, padx=2, pady=2, sticky='n')
         self.insert_factor_tree()
 
-        self.factor_selection_dataframe = ttk.Treeview(self, columns=("股票代號", "選入日期", "自選入起報酬"), show="headings", style="Treeview")
+        self.factor_selection_dataframe = ttk.Treeview(self, columns=("股票代號", "自選入起報酬", "選入日期"), show="headings", style="Treeview")
         self.factor_selection_dataframe.heading("股票代號", text="股票代號")
-        self.factor_selection_dataframe.heading("選入日期", text="選入日期")
         self.factor_selection_dataframe.heading("自選入起報酬", text="自選入起報酬")
+        self.factor_selection_dataframe.heading("選入日期", text="選入日期")
         self.factor_selection_dataframe.bind("<ButtonRelease-1>", self.on_tree_click)
         self.factor_selection_dataframe.grid(row=0, column=1, padx=2, pady=2, sticky='n')
 
