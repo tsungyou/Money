@@ -7,14 +7,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 class Searcher(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-
         self.canvas = None
-        self.pq_loc_dir = "../tw-stock-screener/database/"
+
+        self.close  = pd.read_parquet('database/Adj_close.parquet')
 
         # Labels for each input
         self.label_symbol = ctk.CTkLabel(self, text="股票代號")
         self.label_symbol.grid(row=0, column=0, padx=10, pady=(5, 0))
-        self.inputBox1 = ctk.CTkEntry(self, placeholder_text='股票代號')
+        self.inputBox1 = ctk.CTkEntry(self, placeholder_text='2330')
         self.inputBox1.grid(row=1, column=0, padx=10, pady=5)
 
         self.label_ma = ctk.CTkLabel(self, text="移動平均")
@@ -29,8 +29,8 @@ class Searcher(ctk.CTkFrame):
 
         self.inputButton1 = ctk.CTkButton(self, text='顯示', command=self.plotting)
         self.inputButton1.grid(row=1, column=3, padx=10, pady=5)
-        self.inputButton1.bind("<Return>", self.plotting)
 
+        # default plot
         self.plotting()
 
     def plotting(self):
@@ -38,20 +38,16 @@ class Searcher(ctk.CTkFrame):
         ma = self.menu_ma.get()
         ticker = self.inputBox1.get()
         date = self.menu_inputDate.get()
-        print(ticker, date, ma)
         if ticker == "":
             ticker = "2330"
 
         # set ma default
         try:
-            tw = self.pq_loc_dir + f"{ticker}_TW.parquet"
-            df = pd.read_parquet(tw)
+            df = self.close[ticker + ".TW"]
             df = df[df.index >= f'{date}-01-01']
-        
         except:
             try:
-                two = self.pq_loc_dir + f"{ticker}_TWO.parquet"
-                df = pd.read_parquet(two)
+                df = self.close[ticker + ".TWO"]
                 df = df[df.index >= f'{date}-01-01']
             except:
                 print("no symbol existed")
@@ -61,12 +57,12 @@ class Searcher(ctk.CTkFrame):
             self.canvas.get_tk_widget().destroy()
             self.canvas = None
 
-        df['ma'] = df['Close'].rolling(int(ma)).mean()
+        ma = df.rolling(int(ma)).mean()
 
         fig, ax = plt.subplots()
-        fig.set_size_inches(8, 4)
-        ax.plot(df['ma'], label='ma')
-        ax.plot(df["Close"], label='close')
+        fig.set_size_inches(16, 8)
+        ax.plot(ma, label='ma')
+        ax.plot(df, label='close')
         ax.set_title(ticker)
         ax.legend()
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
@@ -74,11 +70,3 @@ class Searcher(ctk.CTkFrame):
         self.canvas = FigureCanvasTkAgg(fig, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=2, column=0, columnspan=5, pady=10)
-
-# Example of how to use the Searcher class in a main application
-if __name__ == "__main__":
-    app = ctk.CTk()
-    app.title("Stock Plotter")
-    searcher = Searcher(app)
-    searcher.pack(fill="both", expand=True)
-    app.mainloop()

@@ -10,7 +10,7 @@ class Scraper(ctk.CTkFrame):
     
     def __init__(self, parent):
         super().__init__(parent)
-        self.pq_loc_dir     = "../tw-stock-screener/database/"
+        self.close          = pd.read_parquet('database/Adj_close.parquet')
         self.canvas         = None
         self.canvas2        = None
         self.symbol1        = 2330
@@ -70,18 +70,14 @@ class Scraper(ctk.CTkFrame):
         self.count += 1
     def plotting(self, ticker, column):
         try:
-            tw = self.pq_loc_dir + f"{ticker}_TW.parquet"
-            df = pd.read_parquet(tw)
-            df = df[df.index >= '2023-01-01']
-        
+            df = self.close[ticker + ".TW"]
         except:
             try:
-                two = self.pq_loc_dir + f"{ticker}_TWO.parquet"
-                df = pd.read_parquet(two)
-                df = df[df.index >= '2023-01-01']
-
+                df = self.close[ticker + ".TWO"]
             except:
                 print("no symbol existed")
+                return
+        
         
         if self.canvas and column == 0:
             self.canvas.get_tk_widget().destroy()
@@ -89,13 +85,12 @@ class Scraper(ctk.CTkFrame):
         if self.canvas2 and column == 1:
             self.canvas2.get_tk_widget().destroy()
             self.canvas2 = None
-        df['ma'] = df['Close'].rolling(int(60)).mean()
+        ma = df.rolling(int(60)).mean()
 
         fig, ax = plt.subplots()
         fig.set_size_inches(8,4)
-        ax.plot(df['ma'], label='ma60')
-        ax.plot(df["Close"], label=ticker)
-        ax.set_title(ticker)
+        ax.plot(ma, label='ma60')
+        ax.plot(df, label=ticker)
         ax.legend()
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
         self.canvas = FigureCanvasTkAgg(fig,master=self)
@@ -107,16 +102,13 @@ class Scraper(ctk.CTkFrame):
         for i in range(len(df)):
             self.tree.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 3]))
     def get_surge(self):
-            # 目标URL
         url = 'https://tw.stock.yahoo.com/rank/change-up'
 
-        # 发送请求获取网页内容
         response = requests.get(url)
         if response.status_code != 200:
             print('Failed to retrieve data')
             exit()
 
-        # 使用BeautifulSoup解析HTML
         soup = BeautifulSoup(response.text, 'html.parser')
 
         s = soup.find_all("div", {"class": "Pos(r) Ov(h)"})
@@ -135,12 +127,8 @@ class Scraper(ctk.CTkFrame):
 
             col1 = [q.split("<")[0] for q in col1]
             data.append(col1[1:])
-            #df[col1[0]] = col1[1:]
-            # 打印结果
 
-        #df_close = df.T
         header = ['股號', '股價', '漲跌', '漲跌幅(%)','最高','最低','價差', '成交金額(億)']
-        #df_close.columns = ['股號', '股價', '漲跌', '漲跌幅(%)','最高','最低','價差', '成交金額(億)']
         df = pd.DataFrame(data, columns=header)
         numeric_columns = ['股價', '漲跌', '最高','最低','價差', '成交金額(億)']
         for column in numeric_columns:
@@ -153,26 +141,21 @@ class Scraper(ctk.CTkFrame):
         for i in range(len(df)):
             self.tree1.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 3]))
     def get_down(self):
-            # 目标URL
         url = 'https://tw.stock.yahoo.com/rank/change-down'
 
-        # 发送请求获取网页内容
         response = requests.get(url)
         if response.status_code != 200:
             print('Failed to retrieve data')
 
-        # 使用BeautifulSoup解析HTML
         soup = BeautifulSoup(response.text, 'html.parser')
 
         s = soup.find_all("div", {"class": "Pos(r) Ov(h)"})
         s1 = soup.find_all("li", class_="List(n)")
-        #df = pd.DataFrame()
         data = []
         for i in s1:
             s = str(i).split(">")
             indices = [14, 17, 24, 30, 36, 40, 44, 48, 56]
 
-            # 提取指定索引的元素
             try:
                 col1 = [s[k] for k in indices]
             except IndexError as e:
@@ -180,12 +163,8 @@ class Scraper(ctk.CTkFrame):
 
             col1 = [q.split("<")[0] for q in col1]
             data.append(col1[1:])
-            #df[col1[0]] = col1[1:]
-            # 打印结果
 
-        #df_close = df.T
         header = ['股號', '股價', '漲跌', '漲跌幅(%)','最高','最低','價差', '成交金額(億)']
-        #df_close.columns = ['股號', '股價', '漲跌', '漲跌幅(%)','最高','最低','價差', '成交金額(億)']
         df = pd.DataFrame(data, columns=header)
         numeric_columns = ['股價', '漲跌', '最高','最低','價差', '成交金額(億)']
         for column in numeric_columns:

@@ -9,8 +9,8 @@ import json
 class Strategy(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.pq_loc_dir     = "../tw-stock-screener/database/"
         self.canvas         = None
+        self.close          = pd.read_parquet('database/Adj_close.parquet')
         self.symbol         = 2330
         # Configure the grid layout
         self.grid_columnconfigure(0, weight=1)
@@ -50,7 +50,7 @@ class Strategy(ctk.CTkFrame):
         item = self.factor_dataframe.identify('item', event.x, event.y)
         factor_name = self.factor_dataframe.item(item, "values")[0]
         # action 1
-        with open("src/factor_description.json", "r") as f:
+        with open("database/factors/factor_description.json", "r") as f:
             data = json.load(f)
         self.textbox.delete("1.0", 'end')
         self.textbox.insert("end", f"=========================策略描述=========================\n")
@@ -69,27 +69,23 @@ class Strategy(ctk.CTkFrame):
         self.plotting(self.symbol.split(".")[0])
     def plotting(self, ticker):
         try:
-            tw = self.pq_loc_dir + f"{ticker}_TW.parquet"
-            df = pd.read_parquet(tw)
-            df = df[df.index >= '2023-01-01']
-        
+            df = self.close[ticker + ".TW"]
         except:
             try:
-                two = self.pq_loc_dir + f"{ticker}_TWO.parquet"
-                df = pd.read_parquet(two)
-                df = df[df.index >= '2023-01-01']
-
+                df = self.close[ticker + ".TWO"]
             except:
                 print("no symbol existed")
+                return
+        
         if self.canvas:
             self.canvas.get_tk_widget().destroy()
             self.canvas = None
-        df['ma'] = df['Close'].rolling(int(60)).mean()
+        ma = df.rolling(int(60)).mean()
 
         fig, ax = plt.subplots()
         fig.set_size_inches(8,4)
-        ax.plot(df['ma'], label='ma60')
-        ax.plot(df["Close"], label=ticker)
+        ax.plot(ma, label='ma60')
+        ax.plot(df, label=ticker)
         ax.set_title(ticker)
         ax.legend()
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
@@ -97,7 +93,7 @@ class Strategy(ctk.CTkFrame):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0)
     def insert_factor_tree(self):
-        df = pd.read_csv("src/factors_table.csv")
+        df = pd.read_csv("database/factors/factors_table.csv")
         
         self.factor_dataframe.delete(*self.factor_dataframe.get_children())
         for i in range(len(df)):
