@@ -9,6 +9,7 @@ import json
 class Strategy(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.factor_table   = pd.read_csv("database/factors/factors_table.csv")
         self.canvas         = None
         self.close          = pd.read_parquet('database/Adj_close.parquet')
         self.symbol         = 2330
@@ -47,6 +48,9 @@ class Strategy(ctk.CTkFrame):
         self.textbox.insert("end", f"=========================策略描述=========================\n")
     
     def on_factor_click(self, event):
+        self.insert_factor_tree()
+
+
         item = self.factor_dataframe.identify('item', event.x, event.y)
         factor_name = self.factor_dataframe.item(item, "values")[0]
         # action 1
@@ -58,7 +62,7 @@ class Strategy(ctk.CTkFrame):
         self.textbox.insert('end', data[factor_name] + '\n')
         # action 2
         
-        df = pd.read_csv(f"src/{factor_name}.csv")
+        df = pd.read_csv(f"database/factors/{factor_name}.csv")
         self.factor_selection_dataframe.delete(*self.factor_selection_dataframe.get_children())
         for i in range(len(df)):
             self.factor_selection_dataframe.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2]))
@@ -93,8 +97,8 @@ class Strategy(ctk.CTkFrame):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, column=0)
     def insert_factor_tree(self):
-        df = pd.read_csv("database/factors/factors_table.csv")
+        self.factor_table = pd.read_csv("database/factors/factors_table.csv")
         
         self.factor_dataframe.delete(*self.factor_dataframe.get_children())
-        for i in range(len(df)):
-            self.factor_dataframe.insert("", "end", values=(df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2], df.iloc[i, 3], df.iloc[i, 4]))
+        for i in range(len(self.factor_table)):
+            self.factor_dataframe.insert("", "end", values=(self.factor_table.iloc[i, 0], self.factor_table.iloc[i, 1], self.factor_table.iloc[i, 2], self.factor_table.iloc[i, 3], self.factor_table.iloc[i, 4]))

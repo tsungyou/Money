@@ -9,6 +9,7 @@ import json
 class Backtester(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.csv_to_be_destroyed = None
         self.canvas = None
         self.factor_description_loc = "database/factors/factor_description.json"
         self.close  = pd.read_parquet('database/Adj_close.parquet')
@@ -79,14 +80,14 @@ class Backtester(ctk.CTkFrame):
 
     def generate_strategy(self):
         name = self.input_name.get()
-
         pool = self.input_pool.get()
+        ma   = self.menu_ma.get()
         holding_period = self.menu_holding_period.get()
-        holding = self.holding_period_dict[holding_period]
+        holding_days = int(self.holding_period_dict[holding_period])
 
         # input error handling
         if name == "":
-            name = f'unnamed, {str(np.random.random_integers(0, 10000))}'
+            name = f'未命名測試_{str(np.random.random_integers(0, 10000))}'
         self.textbox_action.delete("1.0", 'end')
         self.textbox_action.insert("end", "請選擇移動平均週期, 持股期間並點擊生成策略\n")
 
@@ -95,24 +96,25 @@ class Backtester(ctk.CTkFrame):
         pct_change = self.get_pct_change(weighting, lag=1)
 
         # rigorous one
-        rigoruous_backtest = self.backtest(weighting, pct_change)
-
+        df_to_csv, backtest_analyzer = self.backtest(weighting, pct_change, holding_days=holding_days)
+        # [total_return, annual_sharpe, cagr, mdd]
+        
         # basic backtest
-        cumsum     = self.get_cumsum(weighting, pct_change)
-        mdd = 0
-        sharpe = 0
-        total_return = 0
-        annual_return = 0
+        cumsum           = self.get_cumsum(weighting, pct_change)
+        total_return     = backtest_analyzer[0]
+        sharpe           = backtest_analyzer[1]
+        annual_return    = backtest_analyzer[2]
+        mdd              = backtest_analyzer[3]
         self.textbox_action.insert("end", f"""
         ========回測結果(完全不考慮手續費, 換手率的結果, 實際效果仍須至前頁確認)========\n
-        sharpe        : {sharpe} \n
         total_return  : {total_return} \n
+        sharpe        : {sharpe} \n
         annual_return : {annual_return} \n
         max drawdown  : {mdd} \n
         """)
         self.write_into_factors_table_csv(name, total_return, sharpe, annual_return, mdd)
-        self.write_into_factor_description_json(name, description=f"移動平均選股")
-        self.write_new_csv_holdings()
+        self.write_into_factor_description_json(name, description=f"移動平均選股_持股{holding_days}天_全部股池_移動平均{ma}天")
+        self.write_new_csv_holdings(name, df_to_csv)
 
         self.plotting(cumsum)
 
@@ -138,8 +140,40 @@ class Backtester(ctk.CTkFrame):
         pct_change_lag1 = pct_change.shift(-1+lag)
         return pct_change_lag1
     
-    def backtest(self, weighting, pct_change):
-        pass
+    def backtest(self, weighting, pct_change, holding_days=10):
+        # get navs
+        nav_total = []
+        for index, i in enumerate(weighting.index[::holding_days]):
+            if index == 0:
+                prev_date = i
+                continue
+            
+            pct_current = pct_change.loc[prev_date:i]
+            weighting_current = weighting.loc[prev_date]
+            nav_sum = (weighting_current * pct_current).sum(axis=1)
+            nav_total.append(nav_sum)
+            prev_date = i
+        nav = pd.concat(nav_total)
+        average = np.mean(nav)
+        std = np.std(nav)
+        nav.loc[nav[nav > average + 3*std].index] = 0
+        # last record for rigorous backtest, including holdings, return and da for selection
+        top10_holdings = weighting_current.sort_values(ascending=False)[:10].index
+        returns = np.round(pct_current[top10_holdings].sum(axis=0), 2)
+        df = pd.DataFrame(returns, columns=['Return-to-date'])
+
+        df["Date"] = prev_date
+
+        # cumsum, calculate analyzer
+        cumsum = nav.cumsum()
+        ts_dd = (nav +1) / (np.maximum(0, nav.cummax()) +1) - 1
+        mdd = np.abs(ts_dd.min())
+        annual_sharpe = nav.mean() / nav.std() * np.sqrt(252)
+        cagr = ((cumsum.values[-1] +1) ** (1/len(cumsum))) ** 252 -1
+        total_return = cumsum.values[-1]
+        ret = [total_return, annual_sharpe, cagr, mdd]
+        ret = [np.round(i, 2) for i in ret]
+        return df, ret
 
     def get_cumsum(self, weighting, pct_change_shift1):
 
@@ -174,8 +208,8 @@ class Backtester(ctk.CTkFrame):
             print("fail writing into factor_descroption.json")
             return False
     
-    def write_new_csv_holdings(self):
-        pass
+    def write_new_csv_holdings(self, csv_file_name, df_to_csv):
+        df_to_csv.to_csv(f'database/factors/{csv_file_name}.csv')
 
     def plotting(self, nav):
         if self.canvas:
@@ -183,10 +217,10 @@ class Backtester(ctk.CTkFrame):
             self.canvas = None
 
         fig, ax = plt.subplots()
-        fig.set_size_inches(16, 8)
+        fig.set_size_inches(4, 2)
         ax.plot(nav, label='nav plot')
         ax.legend()
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
         self.canvas = FigureCanvasTkAgg(fig, master=self)
         self.canvas.draw()
-        self.canvas.get_tk_widget().grid(row=2, column=0, columnspan=0, pady=5)
+        self.canvas.get_tk_widget().grid(row=2, column=0, columnspan=1, pady=5)
