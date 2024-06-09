@@ -12,4 +12,4 @@ delist = ['5281.TWO', '4944.TWO', '2456.TWO', '2823.TWO', '1592.TWO', '3536.TWO'
 
 adj_close = df['Adj Close']
 adj_close.dropna(axis=1, how='all', inplace=True)
-adj_close.to_parquet("Adj_close.parquet")
+adj_close.loc[pd.to_datetime("2010-01-01"):].to_parquet("Adj_close.parquet")
